@@ -29,10 +29,63 @@ defmodule Hemdal.Host.TrooperTest do
   end
 
   setup do
-    Application.put_env(:hemdal, :config_module, Hemdal.Config.Backend.Json)
-    Application.put_env(:hemdal, Hemdal.Config,
-      hosts_file: "test/resources/hosts_config.json",
-      alerts_file: "test/resources/alerts_config.json")
+    Application.put_env(:hemdal, :config_module, Hemdal.Config.Backend.Env)
+    Application.put_env(:hemdal, Hemdal.Config, [
+      [
+        id: "aea48656-be08-4576-a2d0-2723458faefd",
+        name: "valid alert check",
+        host: [
+          id: "2a8572d4-ceb3-4200-8b29-dd1f21b50e54",
+          name: "127.0.0.1",
+          port: 40400,
+          max_workers: 1,
+          credential: [
+            id: "ff47ed0e-ea1f-4e54-ab4a-c406a78339f7",
+            type: "rsa",
+            username: "manuel.rubio",
+            cert_key: File.read!("test/user/id_rsa"),
+            cert_pub: File.read!("test/user/id_rsa.pub")
+          ]
+        ],
+        command: [
+          id: "c5c090b2-7b6a-487e-87b8-57788bffaffe",
+          name: "get ok status",
+          command_type: "line",
+          command: "\"[\\\"OK\\\", \\\"valid one!\\\"]\"."
+        ],
+        check_in_sec: 60,
+        recheck_in_sec: 1,
+        broken_recheck_in_sec: 10,
+        retries: 1
+      ],
+      [
+        id: "6b6d247c-48c3-4a8c-9b4f-773f178ddc0f",
+        name: "invalid alert check",
+        host: [
+          id: "fd1393bf-c554-45fe-869a-d253466da8ea",
+          name: "127.0.0.1",
+          port: 50500,
+          max_workers: 1,
+          credential: [
+            id: "ff47ed0e-ea1f-4e54-ab4a-c406a78339f7",
+            type: "rsa",
+            username: "manuel.rubio",
+            cert_key: File.read!("test/user/id_rsa"),
+            cert_pub: File.read!("test/user/id_rsa.pub")
+          ]
+        ],
+        command: [
+          id: "6b07ea20-f677-44bc-90f4-e07b611068f3",
+          name: "get failed status",
+          command_type: "line",
+          command: "\"[\\\"FAIL\\\", \\\"invalid one!\\\"]\"."
+        ],
+        check_in_sec: 60,
+        recheck_in_sec: 1,
+        broken_recheck_in_sec: 10,
+        retries: 1
+      ]
+    ])
   end
 
   test "get correct alert check" do

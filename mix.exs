@@ -8,7 +8,6 @@ defmodule HemdalTrooper.MixProject do
       app: :hemdal_trooper,
       version: @version,
       elixir: "~> 1.10",
-      elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       name: "Hemdal Trooper",
@@ -21,10 +20,6 @@ defmodule HemdalTrooper.MixProject do
       extra_applications: [:logger, :runtime_tools]
     ]
   end
-
-  # Specifies which paths to compile per environment.
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_), do: ["lib"]
 
   defp deps do
     [
