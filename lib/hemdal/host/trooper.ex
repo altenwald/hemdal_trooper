@@ -1,4 +1,9 @@
 defmodule Hemdal.Host.Trooper do
+  @moduledoc """
+  Implement the Hemdal.Host behaviour to provide access via SSH to remote
+  hosts. The configuration is provided via the host configuration, see
+  `Hemdal.Config` for further information.
+  """
   use Hemdal.Host
 
   @rsa_header "-----BEGIN RSA PRIVATE KEY-----"

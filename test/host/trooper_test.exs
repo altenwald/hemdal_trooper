@@ -30,6 +30,7 @@ defmodule Hemdal.Host.TrooperTest do
 
   setup do
     Application.put_env(:hemdal, :config_module, Hemdal.Config.Backend.Env)
+
     Application.put_env(:hemdal, Hemdal.Config, [
       [
         id: "aea48656-be08-4576-a2d0-2723458faefd",
@@ -37,7 +38,7 @@ defmodule Hemdal.Host.TrooperTest do
         host: [
           id: "2a8572d4-ceb3-4200-8b29-dd1f21b50e54",
           name: "127.0.0.1",
-          port: 40400,
+          port: 40_400,
           max_workers: 1,
           credential: [
             id: "ff47ed0e-ea1f-4e54-ab4a-c406a78339f7",
@@ -64,7 +65,7 @@ defmodule Hemdal.Host.TrooperTest do
         host: [
           id: "fd1393bf-c554-45fe-869a-d253466da8ea",
           name: "127.0.0.1",
-          port: 50500,
+          port: 50_500,
           max_workers: 1,
           credential: [
             id: "ff47ed0e-ea1f-4e54-ab4a-c406a78339f7",
