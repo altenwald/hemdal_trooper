@@ -1,7 +1,6 @@
 # Trooper extension for Hemdal Alerts/Alarms Panel
 
-[![Build Status](https://img.shields.io/github/altenwald/hemdal_trooper/master.svg)](https://github.com/altenwald/hemdal/actions)
-[![Codecov](https://img.shields.io/codecov/c/github/altenwald/hemdal_trooper.svg)](https://codecov.io/gh/altenwald/hemdal)
+[![Build Status](https://img.shields.io/github/workflow/status/altenwald/hemdal_trooper/check)](https://github.com/altenwald/hemdal/actions)
 [![License: LGPL 2.1](https://img.shields.io/github/license/altenwald/hemdal_trooper.svg)](https://raw.githubusercontent.com/altenwald/hemdal_trooper/master/COPYING)
 [![Paypal: Donation](https://img.shields.io/badge/paypal-donation-yellow)](https://www.paypal.com/donate/?hosted_button_id=XK6Z5XATN77L2)
 [![Patreon: Donation](https://img.shields.io/badge/patreon-donation-yellow)](https://www.patreon.com/altenwald)
