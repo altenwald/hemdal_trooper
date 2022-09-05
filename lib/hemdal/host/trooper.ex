@@ -13,6 +13,7 @@ defmodule Hemdal.Host.Trooper do
   @impl Hemdal.Host
   def transaction(host, f) do
     host_opts = Map.new(host.options)
+
     opts =
       [
         host: String.to_charlist(host_opts.hostname),
@@ -25,7 +26,7 @@ defmodule Hemdal.Host.Trooper do
 
   @impl Hemdal.Host
   def exec(trooper, command) do
-    :trooper_ssh.exec(trooper, command)
+    :trooper_ssh.exec(trooper, String.to_charlist(command))
   end
 
   @impl Hemdal.Host
