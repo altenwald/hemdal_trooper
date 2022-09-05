@@ -12,12 +12,13 @@ defmodule Hemdal.Host.Trooper do
 
   @impl Hemdal.Host
   def transaction(host, f) do
+    host_opts = Map.new(host.options)
     opts =
       [
-        host: String.to_charlist(host.name),
-        port: host.port,
-        user: String.to_charlist(host.credential.username)
-      ] ++ auth_cfg(host.credential)
+        host: String.to_charlist(host_opts.hostname),
+        port: host_opts.port,
+        user: String.to_charlist(host_opts.username)
+      ] ++ auth_cfg(host_opts)
 
     :trooper_ssh.transaction(opts, f)
   end
@@ -46,7 +47,7 @@ defmodule Hemdal.Host.Trooper do
       throw({:error, "Host with an invalid certificate"})
     end
 
-    case cred.password do
+    case cred[:password] do
       nil -> [id_rsa: rsa]
       password -> [id_rsa: rsa, rsa_pass_pharse: password]
     end
@@ -57,7 +58,7 @@ defmodule Hemdal.Host.Trooper do
       throw({:error, "Host with an invalid certificate"})
     end
 
-    case cred.password do
+    case cred[:password] do
       nil -> [id_dsa: dsa]
       password -> [id_dsa: dsa, dsa_pass_pharse: password]
     end
@@ -68,7 +69,7 @@ defmodule Hemdal.Host.Trooper do
       throw({:error, "Host with an invalid certificate"})
     end
 
-    case cred.password do
+    case cred[:password] do
       nil -> [id_ecdsa: ecdsa]
       password -> [id_ecdsa: ecdsa, dsa_pass_pharse: password]
     end

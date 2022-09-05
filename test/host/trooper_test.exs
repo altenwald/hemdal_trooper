@@ -37,21 +37,21 @@ defmodule Hemdal.Host.TrooperTest do
         name: "valid alert check",
         host: [
           id: "2a8572d4-ceb3-4200-8b29-dd1f21b50e54",
-          name: "127.0.0.1",
-          port: 40_400,
+          name: "localhost",
+          module: Hemdal.Host.Trooper,
           max_workers: 1,
-          credential: [
-            id: "ff47ed0e-ea1f-4e54-ab4a-c406a78339f7",
+          options: [
+            port: 40_400,
             type: "rsa",
             username: "manuel.rubio",
+            hostname: "127.0.0.1",
             cert_key: File.read!("test/user/id_rsa"),
             cert_pub: File.read!("test/user/id_rsa.pub")
           ]
         ],
         command: [
-          id: "c5c090b2-7b6a-487e-87b8-57788bffaffe",
           name: "get ok status",
-          command_type: "line",
+          type: "line",
           command: "\"[\\\"OK\\\", \\\"valid one!\\\"]\"."
         ],
         check_in_sec: 60,
@@ -64,21 +64,21 @@ defmodule Hemdal.Host.TrooperTest do
         name: "invalid alert check",
         host: [
           id: "fd1393bf-c554-45fe-869a-d253466da8ea",
-          name: "127.0.0.1",
-          port: 50_500,
+          name: "localhost",
+          module: Hemdal.Host.Trooper,
           max_workers: 1,
-          credential: [
-            id: "ff47ed0e-ea1f-4e54-ab4a-c406a78339f7",
+          options: [
+            port: 50_500,
             type: "rsa",
             username: "manuel.rubio",
+            hostname: "127.0.0.1",
             cert_key: File.read!("test/user/id_rsa"),
             cert_pub: File.read!("test/user/id_rsa.pub")
           ]
         ],
         command: [
-          id: "6b07ea20-f677-44bc-90f4-e07b611068f3",
           name: "get failed status",
-          command_type: "line",
+          type: "line",
           command: "\"[\\\"FAIL\\\", \\\"invalid one!\\\"]\"."
         ],
         check_in_sec: 60,
@@ -93,7 +93,7 @@ defmodule Hemdal.Host.TrooperTest do
     alert_id = "aea48656-be08-4576-a2d0-2723458faefd"
     alert = Hemdal.Config.get_alert_by_id!(alert_id)
     {:ok, _cap} = Hemdal.Event.Mock.start_link()
-    {:ok, sshd} = start_daemon(alert.host.port)
+    {:ok, sshd} = start_daemon(alert.host.options[:port])
     {:ok, pid} = Check.update_alert(alert)
     assert pid == Check.get_pid(alert.id)
 
@@ -112,7 +112,7 @@ defmodule Hemdal.Host.TrooperTest do
     alert_id = "6b6d247c-48c3-4a8c-9b4f-773f178ddc0f"
     alert = Hemdal.Config.get_alert_by_id!(alert_id)
     {:ok, _cap} = Hemdal.Event.Mock.start_link()
-    {:ok, sshd} = start_daemon(alert.host.port)
+    {:ok, sshd} = start_daemon(alert.host.options[:port])
     {:ok, pid} = Check.update_alert(alert)
     assert pid == Check.get_pid(alert.id)
 
