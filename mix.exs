@@ -6,12 +6,14 @@ defmodule HemdalTrooper.MixProject do
   def project do
     [
       app: :hemdal_trooper,
+      description: "Hemdal Trooper extension",
       version: @version,
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       name: "Hemdal Trooper",
-      docs: docs()
+      docs: docs(),
+      package: package()
     ]
   end
 
@@ -41,6 +43,18 @@ defmodule HemdalTrooper.MixProject do
       source_ref: "v#{@version}",
       canonical: "http://hexdocs.pm/hemdal_trooper",
       source_url: "https://github.com/altenwald/hemdal_trooper"
+    ]
+  end
+
+  defp package do
+    [
+      files: ~w[ lib mix.* COPYING ],
+      maintainers: ["Manuel Rubio"],
+      licenses: ["LGPL-2.1-only"],
+      links: %{
+        "GitHub" => "https://github.com/altenwald/hemdal",
+        "Docs" => "https://hexdocs.pm/hemdal"
+      }
     ]
   end
 end
