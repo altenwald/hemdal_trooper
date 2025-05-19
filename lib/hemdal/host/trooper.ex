@@ -29,6 +29,41 @@ defmodule Hemdal.Host.Trooper do
   end
 
   @impl Hemdal.Host
+  def exec_interactive(trooper, command, client_pid) do
+    exec_pid = :trooper_ssh.exec_long_polling(trooper, String.to_charlist(command))
+    send(client_pid, {:start, self()})
+    get_and_send_all(client_pid, exec_pid, "", 0)
+  end
+
+  defp get_and_send_all(client_pid, exec_pid, output, exit_status) do
+    receive do
+      {:data, data} ->
+        send(exec_pid, {:send, data})
+        get_and_send_all(client_pid, exec_pid, output, exit_status)
+
+      :close ->
+        #  TODO
+        get_and_send_all(client_pid, exec_pid, output, exit_status)
+
+      {:continue, data} ->
+        send(client_pid, {:continue, data})
+        get_and_send_all(client_pid, exec_pid, output <> data, exit_status)
+
+      {:exit_status, exit_status} ->
+        get_and_send_all(client_pid, exec_pid, output, exit_status)
+
+      :closed ->
+        send(client_pid, :closed)
+        {:ok, exit_status, output}
+    after
+      60_000 ->
+        send(exec_pid, :stop)
+        send(client_pid, :closed)
+        {:ok, 127, output}
+    end
+  end
+
+  @impl Hemdal.Host
   def write_file(trooper, tmp_file, content) do
     :trooper_scp.write_file(trooper, String.to_charlist(tmp_file), String.to_charlist(content))
   end

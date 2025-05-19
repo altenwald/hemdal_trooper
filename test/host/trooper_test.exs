@@ -22,9 +22,9 @@ defmodule Hemdal.Host.TrooperTest do
   end
 
   def stop_daemon(sshd) do
-    :ok = :ssh.stop_listener(sshd)
-    :ok = :ssh.stop_daemon(sshd)
-    :ok = :ssh.stop()
+    _ = :ssh.stop_listener(sshd)
+    _ = :ssh.stop_daemon(sshd)
+    _ = :ssh.stop()
     :ok
   end
 
@@ -52,7 +52,7 @@ defmodule Hemdal.Host.TrooperTest do
         command: [
           name: "get ok status",
           type: "line",
-          command: "\"[\\\"OK\\\", \\\"valid one!\\\"]\"."
+          command: ~s|"[\\"OK\\", \\"valid one!\\"]".|
         ],
         check_in_sec: 60,
         recheck_in_sec: 1,
@@ -79,7 +79,7 @@ defmodule Hemdal.Host.TrooperTest do
         command: [
           name: "get failed status",
           type: "line",
-          command: "\"[\\\"FAIL\\\", \\\"invalid one!\\\"]\"."
+          command: ~s|"[\\"FAIL\\", \\"invalid one!\\"]".|
         ],
         check_in_sec: 60,
         recheck_in_sec: 1,
@@ -105,6 +105,39 @@ defmodule Hemdal.Host.TrooperTest do
 
     Hemdal.Event.Log.stop()
     Check.stop(pid)
+    :ok = stop_daemon(sshd)
+  end
+
+  test "run interactive command" do
+    alert_id = "aea48656-be08-4576-a2d0-2723458faefd"
+    alert = Hemdal.Config.get_alert_by_id!(alert_id)
+    {:ok, sshd} = start_daemon(alert.host.options[:port])
+    Hemdal.Host.reload_all()
+
+    host_id = "2a8572d4-ceb3-4200-8b29-dd1f21b50e54"
+
+    command = %Hemdal.Config.Alert.Command{
+      name: "interactive command",
+      type: "interactive",
+      command: ~s|io:get_line("").|
+    }
+
+    pid =
+      spawn(fn ->
+        pid =
+          receive do
+            {:start, pid} -> pid
+          end
+
+        send(pid, {:data, ~s|{"status": "OK", "message": "hello world!"}\n|})
+        assert_receive {:continue, ~s|{"status": "OK", "message": "hello world!"}\n|}
+        send(pid, :close)
+        assert_receive :closed
+      end)
+
+    assert {:ok, %{"message" => "hello world!", "status" => "OK"}} ==
+             Hemdal.Host.exec(host_id, command, [pid])
+
     :ok = stop_daemon(sshd)
   end
 
