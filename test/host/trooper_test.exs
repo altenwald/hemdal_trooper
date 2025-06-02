@@ -116,10 +116,11 @@ defmodule Hemdal.Host.TrooperTest do
 
     host_id = "2a8572d4-ceb3-4200-8b29-dd1f21b50e54"
 
-    command = %Hemdal.Config.Alert.Command{
+    command = %Hemdal.Config.Command{
       name: "interactive command",
-      type: "interactive",
-      command: ~s|io:get_line("").|
+      type: "line",
+      command: ~s|io:get_line("").|,
+      interactive: true
     }
 
     pid =
@@ -136,7 +137,7 @@ defmodule Hemdal.Host.TrooperTest do
       end)
 
     assert {:ok, %{"message" => "hello world!", "status" => "OK"}} ==
-             Hemdal.Host.exec(host_id, command, [pid])
+             Hemdal.Host.exec(host_id, command, caller: pid)
 
     :ok = stop_daemon(sshd)
   end
