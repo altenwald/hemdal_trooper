@@ -1,7 +1,7 @@
 defmodule HemdalTrooper.MixProject do
   use Mix.Project
 
-  @version "1.1.0"
+  @version "1.2.0"
 
   def project do
     [
@@ -25,10 +25,11 @@ defmodule HemdalTrooper.MixProject do
 
   defp deps do
     [
-      {:trooper, "~> 0.4"},
-      {:hemdal, "~> 1.1"},
+      {:trooper, "~> 0.5"},
+      {:hemdal, "~> 1.2"},
 
       # only for dev
+      {:mix_audit, ">= 0.0.0", only: [:dev, :test], runtime: false},
       {:dialyxir, ">= 0.0.0", only: [:dev, :test], runtime: false},
       {:credo, ">= 0.0.0", only: [:dev, :test], runtime: false},
       {:doctor, ">= 0.0.0", only: [:dev, :test], runtime: false},

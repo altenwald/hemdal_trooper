@@ -9,6 +9,8 @@ defmodule Hemdal.Host.Trooper do
   @rsa_header "-----BEGIN RSA PRIVATE KEY-----"
   @ecdsa_header "-----BEGIN EC PRIVATE KEY-----"
 
+  @default_idle_timeout :timer.minutes(1)
+
   @impl Hemdal.Host
   def transaction(host, f) do
     host_opts = Map.new(host.options)
@@ -29,34 +31,44 @@ defmodule Hemdal.Host.Trooper do
   end
 
   @impl Hemdal.Host
-  def exec_interactive(trooper, command, client_pid) do
+  def exec_interactive(trooper, command, client_pid, opts) do
     exec_pid = :trooper_ssh.exec_long_polling(trooper, String.to_charlist(command))
     send(client_pid, {:start, self()})
-    get_and_send_all(client_pid, exec_pid, "", 0)
+    output = if(opts[:output], do: "")
+    get_and_send_all(client_pid, exec_pid, opts, output, 0)
   end
 
-  defp get_and_send_all(client_pid, exec_pid, output, exit_status) do
+  @impl Hemdal.Host
+  def shell(trooper, client_pid, opts) do
+    exec_pid = :trooper_ssh.shell(trooper)
+    send(client_pid, {:start, self()})
+    output = if(opts[:output], do: "")
+    get_and_send_all(client_pid, exec_pid, opts, output, 0)
+  end
+
+  defp get_and_send_all(client_pid, exec_pid, opts, output, exit_status) do
     receive do
       {:data, data} ->
         send(exec_pid, {:send, data})
-        get_and_send_all(client_pid, exec_pid, output, exit_status)
+        get_and_send_all(client_pid, exec_pid, opts, output, exit_status)
 
       :close ->
         #  TODO
-        get_and_send_all(client_pid, exec_pid, output, exit_status)
+        get_and_send_all(client_pid, exec_pid, opts, output, exit_status)
 
       {:continue, data} ->
         send(client_pid, {:continue, data})
-        get_and_send_all(client_pid, exec_pid, output <> data, exit_status)
+        output = if(output, do: output <> data)
+        get_and_send_all(client_pid, exec_pid, opts, output, exit_status)
 
       {:exit_status, exit_status} ->
-        get_and_send_all(client_pid, exec_pid, output, exit_status)
+        get_and_send_all(client_pid, exec_pid, opts, output, exit_status)
 
       :closed ->
         send(client_pid, :closed)
         {:ok, exit_status, output}
     after
-      60_000 ->
+      opts[:timeout] || @default_idle_timeout ->
         send(exec_pid, :stop)
         send(client_pid, :closed)
         {:ok, 127, output}

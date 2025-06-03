@@ -22,7 +22,6 @@ defmodule Hemdal.Host.TrooperTest do
   end
 
   def stop_daemon(sshd) do
-    _ = :ssh.stop_listener(sshd)
     _ = :ssh.stop_daemon(sshd)
     _ = :ssh.stop()
     :ok
@@ -137,6 +136,47 @@ defmodule Hemdal.Host.TrooperTest do
       end)
 
     assert {:ok, %{"message" => "hello world!", "status" => "OK"}} ==
+             Hemdal.Host.exec(host_id, command, caller: pid)
+
+    :ok = stop_daemon(sshd)
+  end
+
+  test "run shell" do
+    alert_id = "aea48656-be08-4576-a2d0-2723458faefd"
+    alert = Hemdal.Config.get_alert_by_id!(alert_id)
+    {:ok, sshd} = start_daemon(alert.host.options[:port])
+    Hemdal.Host.reload_all()
+
+    host_id = "2a8572d4-ceb3-4200-8b29-dd1f21b50e54"
+
+    command = %Hemdal.Config.Command{
+      name: "interactive command",
+      type: "shell",
+      interactive: true,
+      output: false
+    }
+
+    pid =
+      spawn(fn ->
+        pid =
+          receive do
+            {:start, pid} -> pid
+          end
+
+        assert_receive {:continue, "Eshell V" <> _}
+        assert_receive {:continue, "1> " <> _}
+
+        send(pid, {:data, ~s|"{\\"status\\": \\"OK\\", \\"message\\": \\"hello world!\\"}".\n|})
+
+        assert_receive {:continue,
+                        ~s|"{\\"status\\": \\"OK\\", \\"message\\": \\"hello world!\\"}"| <> _}
+
+        assert_receive {:continue, "2> " <> _}
+        send(pid, {:data, ~s|exit().\n|})
+        assert_receive :closed
+      end)
+
+    assert {:ok, %{"errorlevel" => 0, "status" => "OK"}} ==
              Hemdal.Host.exec(host_id, command, caller: pid)
 
     :ok = stop_daemon(sshd)
