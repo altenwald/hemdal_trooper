@@ -20,7 +20,7 @@ defmodule Hemdal.Host.Trooper do
         host: String.to_charlist(host_opts.hostname),
         port: host_opts.port,
         user: String.to_charlist(host_opts.username)
-      ] ++ auth_cfg(host_opts)
+      ] ++ auth_cfg(host_opts) ++ ptty_cfg(host_opts)
 
     :trooper_ssh.transaction(opts, f)
   end
@@ -109,5 +109,11 @@ defmodule Hemdal.Host.Trooper do
       nil -> [id_ecdsa: ecdsa]
       password -> [id_ecdsa: ecdsa, dsa_pass_phrase: password]
     end
+  end
+
+  defp ptty_cfg(opts) do
+    opts
+    |> Map.take([:ptty_allow, :ptty_opts])
+    |> Enum.to_list()
   end
 end
