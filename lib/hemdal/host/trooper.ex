@@ -17,13 +17,16 @@ defmodule Hemdal.Host.Trooper do
 
     opts =
       [
-        host: String.to_charlist(host_opts.hostname),
+        host: to_host(host_opts.hostname),
         port: host_opts.port,
         user: String.to_charlist(host_opts.username)
       ] ++ auth_cfg(host_opts) ++ ptty_cfg(host_opts)
 
     :trooper_ssh.transaction(opts, f)
   end
+
+  defp to_host(hostname) when is_binary(hostname), do: to_charlist(hostname)
+  defp to_host(hostname) when is_tuple(hostname) and tuple_size(hostname) in [4, 8], do: hostname
 
   @impl Hemdal.Host
   def exec(trooper, command) do
